@@ -1,0 +1,295 @@
+Práctica 10
+Polinomios ortogonales
+Aproximación por mínimos cuadrados discreta
+
+
+
+Cálculo de polinomios ortogonales
+
+EJERCICIO  1
+
+Determínense los diez primeros polinomios de 
+    Legendre   {p0(x),  p1(x),..., p9(x)}   partiendo de   p0(x)=1,   p1(x)=x.
+Clear["Global`*"]
+m=10;
+p=Table[x,{n,m-1}];
+p[[2]]=3x^2/2-1/2;
+For[n=2,n<=m-2,n++,p[[n+1]]=((2n+1)*x*p[[n]]-n*p[[n-1]])/(n+1)]
+Print["Los ", m," primeros polinomios de Legendre son:"]
+Print["p0(x) = 1"]
+For[n=1,n<=m-1,n++,Print["p",n,"(x) = " ,Expand[p[[n]]]]]
+
+A=Table[2,{i,m},{j,m}];
+For[i=2,i<=m,i++,A[[i,1]]=A[[1,i]]=Integrate[p[[i-1]],{x,-1,1}]]
+For[i=2,i<=m,i++,
+  For[j=i,j<=m,j++,A[[i,j]]=A[[j,i]]=Integrate[p[[i-1]]*p[[j-1]],{x,-1,1}]]]
+MatrixForm[A]
+
+
+For[i=1,i<=m-1,i++,
+  Print["La gráfica del polinomio ortogonal de Legendre  p",i,"(x) = ",
+    Expand[p[[i]]],"   es :"];
+  Plot[p[[i]],{x,-1,1},PlotStyle->RGBColor[i/(m-1),0,(m-i)/(m-1)]]]
+
+
+
+EJERCICIO  2
+
+Determínense los ocho primeros polinomios de Chebyshev de primera 
+    especie   {p0(x),  p1(x),..., p7(x)}   partiendo de   p0(x)=1,   p1(x)=x.
+Clear["Global`*"]
+m=8;
+p=Table[x,{n,1,m-1}];
+p[[2]]=2x^2-1;
+For[n=2,n<=m-2,n++,p[[n+1]]=2*x*p[[n]]-p[[n-1]]]
+Print["Los ", m, " primeros polinomios de Chebyshev de primera especie son:"]
+Print["p0(x) = 1"]
+For[n=1,n<=m-1,n++,Print["p",n,"(x) = " ,Expand[p[[n]]]]]
+
+w=1/Sqrt[1-x^2];
+A=Table[Pi,{i,m},{j,m}];
+For[i=2,i<=m,i++,A[[i,1]]=A[[1,i]]=Integrate[w*p[[i-1]],{x,-1,1}]]
+For[i=2,i<=m,i++,
+  For[j=i,j<=m,j++,
+    A[[i,j]]=A[[j,i]]=Integrate[w*p[[i-1]]*p[[j-1]],{x,-1,1}]]]
+MatrixForm[A]
+
+
+
+For[i=1,i<=m-1,i++,
+  Print["La gráfica del polinomio ortogonal de Chebyshev de primera especie  \
+p",i,"(x) = ",Expand[p[[i]]],"   es :"];
+  Plot[p[[i]],{x,-1,1},PlotStyle->RGBColor[i/(m-1),0,(m-i)/(m-1)]]]
+
+
+
+
+Cálculo de la mejor aproximación por mínimos cuadrados discreta
+
+EJERCICIO  3
+
+Determínese la mejor aproximación por mínimos cuadrados discreta de la 
+    función  f(x)=x^4-3x^2+1,  en los puntos  {-1,-1/2,0,1/2,1},
+en el espacio de los polinomios de grado no mayor que  2.
+
+Clear["Global`*"]
+x1={-1,-1/2,0,1/2,1};
+m=Dimensions[x1][[1]];
+grado=2;
+f=x^4-3x^2+1;
+y1=f/.x->x1;
+datos=Table[{x1[[k]],y1[[k]]},{k,m}];
+
+A=Table[0,{i,0,grado},{j,0,grado}];
+A[[1,1]]=m;
+For[i=2,i<=grado+1,i++,A[[1,i]]=A[[i,1]]=Sum[x1[[k]]^(i-1),{k,m}]]
+For[i=2,i<=grado+1,i++,
+  For[j=2,j<=grado+1,j++,A[[i,j]]=A[[j,i]]=Sum[x1[[k]]^(i+j-2),{k,m}]]]
+b=Table[0,{j,0,grado}];
+b[[1]]=Sum[y1[[k]],{k,m}];
+For[j=2,j<=grado+1,j++,b[[j]]=Sum[y1[[k]]*x1[[k]]^(j-1),{k,m}]]	
+MatrixForm[A]
+b
+coeficientes=LinearSolve[A,b];
+p=coeficientes.Table[x^i,{i,0,grado}];
+Print["La mejor aproximación por mínimos cuadrados discreta de la función  \
+f(x) =  ",f, ",   en el espacio de los polinomios de grado no mayor que  ",
+  grado,
+	"   es   p(x) =  ",p]
+v=Table[1,{i,grado+1},{j,m}];
+For[i=2,i<=grado+1,i++,v[[i]]=x1^(i-1)]
+
+ Print["Y la mejor aproximación por mínimos cuadrados discreta del vector  v \
+=  ",y1, ",   de R^5,  en el subespacio vectorial de  R^5,  generado por los \
+vectores ",v, "  es  u = ",coeficientes.v]
+
+p/.x->x1
+puntos=ListPlot[datos,PlotStyle->{PointSize[0.02],RGBColor[1,0,0]},
+    DisplayFunction->Identity];
+grafica=Plot[p,{x,Min[x1],Max[x1]},PlotStyle->RGBColor[0,0,1],
+    DisplayFunction->Identity];
+Show[{puntos,grafica},DisplayFunction->$DisplayFunction];
+
+
+
+EJERCICIO   4
+
+Determínese la mejor aproximación por mínimos cuadrados discreta  de la 
+    función  f(x)=cos x,  
+en los puntos  {-Pi, -2Pi/3, -Pi/3, Pi/3, 2Pi/3, Pi }, 
+en el espacio de los polinomios de grado no mayor que  4.
+
+Clear["Global`*"]
+
+x1={-Pi, -2Pi/3, -Pi/3, Pi/3, 2Pi/3, Pi };
+m=Dimensions[x1][[1]];
+grado=4;
+f=Cos[x];
+y1=f/.x->x1;
+datos=Table[{x1[[k]],y1[[k]]},{k,m}];
+
+A=Table[0,{i,0,grado},{j,0,grado}];
+A[[1,1]]=m;
+For[i=2,i<=grado+1,i++,A[[1,i]]=A[[i,1]]=Sum[x1[[k]]^(i-1),{k,m}]]
+For[i=2,i<=grado+1,i++,
+  For[j=2,j<=grado+1,j++,A[[i,j]]=A[[j,i]]=Sum[x1[[k]]^(i+j-2),{k,m}]]]
+b=Table[0,{j,0,grado}];
+b[[1]]=Sum[y1[[k]],{k,m}];
+For[j=2,j<=grado+1,j++,b[[j]]=Sum[y1[[k]]*x1[[k]]^(j-1),{k,m}]]	
+MatrixForm[A]
+b
+coeficientes=LinearSolve[A,b];
+p=coeficientes.Table[x^i,{i,0,grado}];
+Print["La mejor aproximación por mínimos cuadrados discreta de la función  \
+f(x) =  ",f, ",   en el espacio de los polinomios de grado no mayor que  ",
+  grado,
+	"   es   p(x) =  ",p]
+v=Table[1,{i,grado+1},{j,m}];
+For[i=2,i<=grado+1,i++,v[[i]]=x1^(i-1)]
+
+ Print["Y la mejor aproximación por mínimos cuadrados discreta del vector  v \
+=  ",y1, ",   de R^6,  en el subespacio vectorial de  R^5,  generado por los \
+vectores ",v, "  es  u = ",coeficientes.v]
+
+p/.x->x1
+puntos=ListPlot[datos,PlotStyle->{PointSize[0.02],RGBColor[1,0,0]},
+    DisplayFunction->Identity];
+grafica=Plot[p,{x,Min[x1],Max[x1]},PlotStyle->RGBColor[0,0,1],
+    DisplayFunction->Identity];
+Show[{puntos,grafica},DisplayFunction->$DisplayFunction];
+
+
+
+EJERCICIO   5
+
+Determínese la mejor aproximación por mínimos cuadrados discreta  de la 
+    función  f(x)=cos x,  
+en los puntos  {-Pi, -2Pi/3, -Pi/3, Pi/3, 2Pi/3, Pi }, 
+en el espacio de los polinomios de grado no mayor que  3.
+
+Clear["Global`*"]
+
+x1={-Pi, -2Pi/3, -Pi/3, Pi/3, 2Pi/3, Pi };
+f=Cos[x];
+m=Dimensions[x1][[1]];
+grado=3;
+y1=f/.x->x1;
+datos=Table[{x1[[k]],y1[[k]]},{k,m}];
+A=Table[0,{i,0,grado},{j,0,grado}];
+A[[1,1]]=m;
+For[i=2,i<=grado+1,i++,A[[1,i]]=A[[i,1]]=Sum[x1[[k]]^(i-1),{k,m}]]
+For[i=2,i<=grado+1,i++,
+  For[j=2,j<=grado+1,j++,A[[i,j]]=A[[j,i]]=Sum[x1[[k]]^(i+j-2),{k,m}]]]
+b=Table[0,{j,0,grado}];
+b[[1]]=Sum[y1[[k]],{k,m}];
+For[j=2,j<=grado+1,j++,b[[j]]=Sum[y1[[k]]*x1[[k]]^(j-1),{k,m}]]	
+MatrixForm[A]
+b
+coeficientes=LinearSolve[A,b];
+p=coeficientes.Table[x^i,{i,0,grado}];
+Print["La mejor aproximación por mínimos cuadrados discreta de la función  \
+f(x) =  ",f, ",   en el espacio de los polinomios de grado no mayor que  ",
+  grado,
+	"   es   p(x) =  ",p]
+v=Table[1,{i,grado+1},{j,m}];
+For[i=2,i<=grado+1,i++,v[[i]]=x1^(i-1)]
+
+ Print["Y la mejor aproximación por mínimos cuadrados discreta del vector  v \
+=  ",y1, ",   de R^6,  en el subespacio vectorial de  R^6,  generado por los \
+vectores ",v, "  es  u = ",coeficientes.v]
+
+p/.x->x1
+puntos=ListPlot[datos,PlotStyle->{PointSize[0.02],RGBColor[1,0,0]},
+    DisplayFunction->Identity];
+grafica=Plot[p,{x,Min[x1],Max[x1]},PlotStyle->RGBColor[0,0,1],
+    DisplayFunction->Identity];
+Show[{puntos,grafica},DisplayFunction->$DisplayFunction];
+
+
+
+EJERCICIO   6
+
+De una función  f  de [-2,2]  en R, se conocen los valores  f(-2)=2,   
+f(-1)=1,   f(0)=3/2,   f(1)=1   y    f(2)=-1.   
+Hállese la mejor aproximación por mínimos cuadrados discreta de   f    en el 
+  espacio de los polinomios de grado no mayor que  3.
+
+Clear["Global`*"]
+
+x1={-2,-1,0,1,2};
+m=Dimensions[x1][[1]];
+grado=3;
+y1={2,1,3/2,1,-1};
+datos=Table[{x1[[k]],y1[[k]]},{k,m}];
+A=Table[0,{i,0,grado},{j,0,grado}];
+A[[1,1]]=m;
+For[i=2,i<=grado+1,i++,A[[1,i]]=A[[i,1]]=Sum[x1[[k]]^(i-1),{k,m}]]
+For[i=2,i<=grado+1,i++,
+  For[j=2,j<=grado+1,j++,A[[i,j]]=A[[j,i]]=Sum[x1[[k]]^(i+j-2),{k,m}]]]
+b=Table[0,{j,0,grado}];
+b[[1]]=Sum[y1[[k]],{k,m}];
+For[j=2,j<=grado+1,j++,b[[j]]=Sum[y1[[k]]*x1[[k]]^(j-1),{k,m}]]	
+MatrixForm[A]
+b
+coeficientes=LinearSolve[A,b];
+p=coeficientes.Table[x^i,{i,0,grado}];
+Print["La mejor aproximación por mínimos cuadrados discreta de la función  \
+f(x) =  ",f, ",   en el espacio de los polinomios de grado no mayor que  ",
+  grado,
+	"   es   p(x) =  ",p]
+v=Table[1,{i,grado+1},{j,m}];
+For[i=2,i<=grado+1,i++,v[[i]]=x1^(i-1)]
+
+ Print["Y la mejor aproximación por mínimos cuadrados discreta del vector  v \
+=  ",y1, ",   de R^5,  en el subespacio vectorial de  R^5,  generado por los \
+vectores ",v, "  es  u = ",coeficientes.v]
+
+p/.x->x1
+puntos=ListPlot[datos,PlotStyle->{PointSize[0.02],RGBColor[1,0,0]},
+    PlotRange->All,DisplayFunction->Identity];
+grafica=Plot[p,{x,Min[x1],Max[x1]},PlotStyle->RGBColor[0,0,1],PlotRange->All,
+    DisplayFunction->Identity];
+Show[{puntos,grafica},DisplayFunction->$DisplayFunction];
+
+
+
+EJERCICIO   7
+
+Hállese la mejor aproximación por mínimos cuadrados discreta del 
+  vector  (-1, 1,0,2)   de  R^4,  
+en el subespacio  H  de  R^4   generado por los 
+  vectores   {(1,-1,0,0),(0,1,-1,0),(0,0,1,-1)}.
+
+Clear["Global`*"]
+x1={-1,1,0,2};
+m=Dimensions[x1][[1]];
+v={{1,-1,0,0},{0,1,-1,0},{0,0,1,-1}};
+n=Dimensions[v][[1]];
+A=Table[v[[i]].v[[j]],{i,n},{j,n}];
+b=Table[x1.v[[j]],{j,n}]
+coeficientes=LinearSolve[A,b];
+u=coeficientes.v;
+Print["La mejor aproximación por mínimos cuadrados discreta del vector  ",x1,
+  "  de R^4, en el subespacio  H  de  R^4  generado por los vectores  ",v,
+  "  es el vector  u =  ",u]
+
+
+EJERCICIO  8
+
+Hállese la mejor aproximación por mínimos cuadrados discreta del 
+  vector  (1,- 1,0,3)   de  R^4,  
+en el subespacio  H  de  R^4   generado por los 
+  vectores   {(1,1,0,0),(0,0,1,1)}.
+
+Clear["Global`*"]
+x1={1,-1,0,3};
+m=Dimensions[x1][[1]];
+v={{1,1,0,0},{0,0,1,1}};
+n=Dimensions[v][[1]];
+A=Table[v[[i]].v[[j]],{i,n},{j,n}]
+b=Table[x1.v[[j]],{j,n}]
+coeficientes=LinearSolve[A,b];
+u=coeficientes.v;
+Print["La mejor aproximación por mínimos cuadrados discreta del vector  ",x1,
+  "  de R^4, en el subespacio  H  de  R^4  generado por los vectores  ",v,
+  "  es el vector  u =  ",u]

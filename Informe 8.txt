@@ -1,0 +1,145 @@
+Práctica 8
+Interpolación polinomial a trozos (II) 
+
+
+
+EJERCICIO  1 
+
+De una función f : [-2,2]->R,  se conocen los valores    f(-2)=3,   f(-1)=1,  
+f(0)=5,   f(1)=-2,    y   f(2)=6.    Hállese el spline cúbico sujeto
+que interpola a   f   en esos datos, sabiendo que  f '(-2)=1,    
+y    f '(2)=4.
+
+Clear["Global`*"]
+t={-2,-1,0,1,2};
+f={3,1,5,-2,6};
+n=Dimensions[t][[1]];
+datos=Table[{t[[i]],f[[i]]},{i,n}];
+h=Table[t[[i+1]]-t[[i]],{i,n-1}];
+A=Table[0,{i,n},{j,n}];
+b=Table[0,{i,n}];
+A[[1,1]]=1;
+For[i=2,i<=n-1,i++,A[[i,i-1]]=1/h[[i-1]];A[[i,i]]=2 (1/h[[i-1]]+1/h[[i]]); 
+  A[[i,i+1]]=1/h[[i]]];
+A[[n,n]]=1;
+b[[1]]=1;
+For[i=2,i<=n-1,i++,
+  b[[i]]=3 ((f[[i]]-f[[i-1]])/h[[i-1]]^2+(f[[i+1]]-f[[i]])/h[[i]]^2)];
+b[[n]]=4;
+MatrixForm[A]
+b
+d=LinearSolve[A,b]
+splinecubicosujeto=
+  Table[Expand[
+      InterpolatingPolynomial[{{t[[i]],{f[[i]],d[[i]]}},{
+            t[[i+1]],{f[[i+1]],d[[i+1]]}}},x]],{i,n-1}]
+Print["El spline cúbico sujeto que interpola a la función  f , que en los \
+nodos  ", t, "   toma los valores  ", f ,
+  ",  y sabiendo que  f '(-2) = 1   y   f '(2) = 4,  viene dado por"]
+For[i=1,i<=n-1,i++,
+  Print["s",i,"(x) = ",splinecubicosujeto[[i]],"         para  x  en  [",
+    t[[i]],", ",t[[i+1]],"]"]]
+graficasplinecubicosujeto=
+  Table[Plot[splinecubicosujeto[[i]],{x,t[[i]],t[[i+1]]},PlotRange->All,
+      PlotStyle->RGBColor[0,0,1],DisplayFunction->Identity],{i,n-1}];
+puntos=ListPlot[Table[{t[[i]],f[[i]]},{i,n}],PlotStyle->{PointSize[0.03]},
+    DisplayFunction->Identity];
+polLagrange=InterpolatingPolynomial[datos,x];
+graficapolLagrange=
+  Plot[polLagrange,{x,t[[1]],t[[n]]},PlotStyle->RGBColor[1,0,0],
+    DisplayFunction->Identity]; 
+Show[graficasplinecubicosujeto,puntos,DisplayFunction->$DisplayFunction];
+Show[graficasplinecubicosujeto,puntos,graficapolLagrange,
+  DisplayFunction->$DisplayFunction];
+
+
+EJERCICIO  2
+
+De una función f : [0,4]->R,  se conocen los valores    f(0)=3,   f(1)=2,  
+f(2)=-3,   f(3)=-1,    y   f(4)=-2.    Hállese el spline cúbico periódico
+que interpola a   f   en esos datos.
+
+Clear["Global`*"]
+t={0,1,2,3,4};
+f={3,2,-3,-1,-2};
+n=Dimensions[t][[1]];
+datos=Table[{t[[i]],f[[i]]},{i,n}];
+h=Table[t[[i+1]]-t[[i]],{i,n-1}];
+A=Table[0,{i,n},{j,n}];
+b=Table[0,{i,n}];
+A[[1,1]]=1; A[[1,n]]=-1;
+For[i=2,i<=n-1,i++,A[[i,i-1]]=1/h[[i-1]];A[[i,i]]=2 (1/h[[i-1]]+1/h[[i]]); 
+  A[[i,i+1]]=1/h[[i]]];
+A[[n,1]]=2/h[[1]]; A[[n,2]]=1/h[[1]];A[[n,n-1]]=1/h[[n-1]]; 
+A[[n,n]]=2/h[[n-1]];
+For[i=2,i<=n-1,i++,
+  b[[i]]=3 ((f[[i]]-f[[i-1]])/h[[i-1]]^2+(f[[i+1]]-f[[i]])/h[[i]]^2)];
+b[[n]]=3((f[[2]]-f[[1]])/h[[1]]^2+ (f[[n]]-f[[n-1]])/h[[n-1]]^2);
+MatrixForm[A]
+b
+d=LinearSolve[A,b]
+splinecubicoperiodico=
+  Table[Expand[
+      InterpolatingPolynomial[{{t[[i]],{f[[i]],d[[i]]}},{
+            t[[i+1]],{f[[i+1]],d[[i+1]]}}},x]],{i,n-1}]
+Print["El spline cúbico periódico que interpola a la función  f , que en los \
+nodos  ", t, "   toma los valores  ", f ,",  viene dado por"]
+For[i=1,i<=n-1,i++,
+  Print["s",i,"(x) = ",splinecubicoperiodico[[i]],"         para  x  en  [",
+    t[[i]],", ",t[[i+1]],"]"]]
+graficasplinecubicoperiodico=
+  Table[Plot[splinecubicoperiodico[[i]],{x,t[[i]],t[[i+1]]},PlotRange->All,
+      PlotStyle->RGBColor[0,0,1],DisplayFunction->Identity],{i,n-1}];
+puntos=ListPlot[Table[{t[[i]],f[[i]]},{i,n}],PlotStyle->{PointSize[0.03]},
+    DisplayFunction->Identity];
+polLagrange=InterpolatingPolynomial[datos,x];
+graficapolLagrange=
+  Plot[polLagrange,{x,t[[1]],t[[n]]},PlotStyle->RGBColor[1,0,0],
+    DisplayFunction->Identity]; 
+Show[graficasplinecubicoperiodico,puntos,DisplayFunction->$DisplayFunction];
+Show[graficasplinecubicoperiodico,puntos,graficapolLagrange,
+  DisplayFunction->$DisplayFunction];
+
+
+EJERCICIO  3
+
+De una función f : [-4,4]->R,  se conocen los valores    f(-4)=3,   f(-2)=2,  
+f(0)=7,   f(2)=-5,   f(4)=3,   y   f '(0)=1.    
+Hállese el spline cuadrático que interpola a   f   en esos datos.
+
+Clear["Global`*"]
+t={-4,-2,0,2,4};
+f={3,2,7,-5,3};
+n=Dimensions[t][[1]];
+datos=Table[{t[[i]],f[[i]]},{i,n}];
+h=Table[t[[i+1]]-t[[i]],{i,n-1}];
+A=Table[0,{i,n},{j,n}];
+b=Table[0,{i,n}];
+For[i=1,i<=n-1,i++,A[[i,i]]=1;A[[i,i+1]]=1];
+A[[n,3]]=1;
+For[i=1,i<=n-1,i++,b[[i]]=2 (f[[i+1]]-f[[i]])/h[[i]]];
+b[[n]]=1;
+MatrixForm[A]
+b
+d=LinearSolve[A,b]
+splinecuadratico=
+  Table[Expand[
+      InterpolatingPolynomial[{{t[[i]],{f[[i]],d[[i]]}},{
+            t[[i+1]],{f[[i+1]],d[[i+1]]}}},x]],{i,n-1}]
+Print["El spline cuadrático que interpola a la función  f , que en los nodos  \
+", t, "   toma los valores  ", f ,",   y  f '(0) = 1,  viene dado por"]
+For[i=1,i<=n-1,i++,
+  Print["s",i,"(x) = ",splinecuadratico[[i]],"         para  x  en  [",t[[i]],
+    ", ",t[[i+1]],"]"]]
+graficasplinecuadratico=
+  Table[Plot[splinecuadratico[[i]],{x,t[[i]],t[[i+1]]},PlotRange->All,
+      PlotStyle->RGBColor[0,0,1],DisplayFunction->Identity],{i,n-1}];
+puntos=ListPlot[Table[{t[[i]],f[[i]]},{i,n}],PlotStyle->{PointSize[0.03]},
+    DisplayFunction->Identity];
+polLagrange=InterpolatingPolynomial[datos,x];
+graficapolLagrange=
+  Plot[polLagrange,{x,t[[1]],t[[n]]},PlotStyle->RGBColor[1,0,0],
+    DisplayFunction->Identity]; 
+Show[graficasplinecuadratico,puntos,DisplayFunction->$DisplayFunction];
+Show[graficasplinecuadratico,puntos,graficapolLagrange,
+  DisplayFunction->$DisplayFunction];

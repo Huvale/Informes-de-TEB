@@ -1,0 +1,163 @@
+Práctica 9
+Aproximación por mínimos cuadrados continua.
+Ortogonalización de Gram-Schmidt
+
+
+Cálculo de la mejor aproximación por mínimos cuadrados continua
+
+EJERCICIO  1 
+
+Determínese la mejor aproximación por mínimos cuadrados continua  de la 
+    función  f(x)=x^4-3x^2+1,  en el intervalo [-1,1],
+en el espacio de los polinomios de grado no mayor que  2.
+
+Clear["Global`*"]
+a=-1.; b=1.;
+grado=2;
+f=x^4-3x^2+1;
+A=Table[Integrate[x^(i+j),{x,a,b}],{i,0,grado},{j,0,grado}];
+b1=Table[Integrate[f*x^j,{x,a,b}],{j,0,grado}];
+coeficientes=LinearSolve[A,b1];
+p=coeficientes.Table[x^i,{i,0,grado}];
+Print["La mejor aproximación por mínimos cuadrados continua de la función  \
+f(x) =  ",f, ",   en el intervalo  [",a,b,
+  "],   en el espacio de los polinomios de grado no mayor que  ",grado,
+	"   es   p(x) =  ",p]
+Plot[{f,p},{x,a,b},PlotStyle->{RGBColor[1,0,0],RGBColor[0,0,1]}];
+
+
+
+EJERCICIO   2
+
+Determínese la mejor aproximación por mínimos cuadrados continua  de la 
+    función  f(x)=cos x,  en el intervalo [-Pi,Pi],
+en el espacio de los polinomios de grado no mayor que  4.
+
+Clear["Global`*"]
+a=-Pi; b=Pi;
+grado=4;
+f=Cos[x];
+A=Table[Integrate[x^(i+j),{x,a,b}],{i,0,grado},{j,0,grado}];
+b1=Table[Integrate[f*x^j,{x,a,b}],{j,0,grado}];
+coeficientes=LinearSolve[A,b1];
+p=coeficientes.Table[x^i,{i,0,grado}];
+Print["La mejor aproximación por mínimos cuadrados continua de la función  \
+f(x) =  ",f, ",   en el intervalo  [",a,", ",b,
+  "],   en el espacio de los polinomios de grado no mayor que  ",grado,
+	"   es   p(x) =  ",p]
+Plot[{f,p},{x,a,b},PlotStyle->{RGBColor[1,0,0],RGBColor[0,0,1]}];
+
+
+
+EJERCICIO   3
+
+Determínese la mejor aproximación por mínimos cuadrados continua  de la 
+    función  f(x)=x^3-x,  en el intervalo [-1,1],
+en el espacio de los polinomios de grado no mayor que  1.
+
+Clear["Global`*"]
+a=-1; b=1;
+grado=1;
+f=x^3-x;
+A=Table[Integrate[x^(i+j),{x,a,b}],{i,0,grado},{j,0,grado}];
+b1=Table[Integrate[f*x^j,{x,a,b}],{j,0,grado}];
+coeficientes=LinearSolve[A,b1];
+p=coeficientes.Table[x^i,{i,0,grado}];
+Print["La mejor aproximación por mínimos cuadrados continua de la función  \
+f(x) =  ",f, ",   en el intervalo  [",a,", ",b,
+  "],   en el espacio de los polinomios de grado no mayor que  ",grado,
+	"   es   p(x) =  ",p]
+Plot[{f,p},{x,a,b},PlotStyle->{RGBColor[1,0,0],RGBColor[0,0,1]}];
+
+
+
+EJERCICIO   4
+
+Determínese la mejor aproximación por mínimos cuadrados continua  de la 
+    función  f(x)=x^2/3-x,  en el intervalo [-1,1],
+en el espacio de los polinomios de grado no mayor que  1.
+
+Clear["Global`*"]
+a=-1; b=1;
+grado=1;
+f=x^2/3-x;
+A=Table[Integrate[x^(i+j),{x,a,b}],{i,0,grado},{j,0,grado}];
+b1=Table[Integrate[f*x^j,{x,a,b}],{j,0,grado}];
+coeficientes=LinearSolve[A,b1];
+p=coeficientes.Table[x^i,{i,0,grado}];
+Print["La mejor aproximación por mínimos cuadrados continua de la función  \
+f(x) =  ",f, ",   en el intervalo  [",a,", ",b,
+  "],   en el espacio de los polinomios de grado no mayor que  ",grado,
+	"   es   p(x) =  ",p]
+Plot[{f,p},{x,a,b},PlotStyle->{RGBColor[1,0,0],RGBColor[0,0,1]}];
+
+
+Ortogonalización de Gram-Schmidt.
+
+EJERCICIO  5 
+
+Hállese una base ortonormal del espacio de los polinomios de grado no mayor 
+  que 1 en el intervalo [0,3],  
+siendo el producto escalar de dos polinomios  el valor de la integral
+en [0,3] del producto de dichos polinomios, 
+y a partir de la base canónica {1,x}  de dicho espacio.
+
+Clear["Global`*"]
+a=0; b=3;
+grado=1;
+baseoriginal=Table[x^i,{i,0,grado}];
+<<LinearAlgebra`Orthogonalization`
+p=GramSchmidt[baseoriginal,InnerProduct->(Integrate[#1 #2,{x,0,3}]&)];
+Print["La base ortogonal obtenida a partir de la base dada, usando el proceso \
+de ortogonalización de Gram-Schmidt es  "]
+For[i=1,i<=grado+1,i++,Print["p",i,"(x) = ",p[[i]]]]
+
+EJERCICIO  6
+
+Hállese una base ortogonal del espacio de los polinomios de grado no mayor 
+  que 3 en el intervalo [-1,1],  
+siendo el producto escalar de dos polinomios  el valor de la integral
+en [-1,1] del producto de dichos polinomios, 
+y a partir de la base canónica {1,x,x^2,x^3}  de dicho espacio.
+
+Clear["Global`*"]
+a=-1; b=1;
+grado=3;
+baseoriginal=Table[x^i,{i,0,grado}];
+<<LinearAlgebra`Orthogonalization`
+p=GramSchmidt[baseoriginal,InnerProduct->(Integrate[#1 #2,{x,-1,1}]&), 
+    Normalized->False];
+Print["La base ortogonal obtenida a partir de la base dada, usando el proceso \
+de ortogonalización de Gram-Schmidt es  "]
+For[i=1,i<=grado+1,i++,Print["p",i,"(x) = ",p[[i]]]]
+
+EJERCICIO  7 
+
+Hállese una base ortogonal del espacio R^3  a partir de la 
+  base {(-1,2,0),(0,3,7),(-1,1,1)},
+considerando el producto escalar ordinario en  R^3.
+
+Clear["Global`*"]
+dimension=3;
+baseoriginal={{-1,2,0},{0,3,7},{-1,1,1}};
+<<LinearAlgebra`Orthogonalization`
+v=GramSchmidt[baseoriginal,InnerProduct->(#1. #2 &), Normalized->False];
+Print["La base ortogonal obtenida a partir de la base dada, usando el proceso \
+de ortogonalización de Gram-Schmidt es  "]
+For[i=1,i<=dimension,i++,Print["v",i," = ",v[[i]]]]
+
+EJERCICIO  8 
+
+Hállese una base ortonormal del espacio R^4   a partir de la 
+  base {(-1,2,0,2),(0,3,7,1),(-1,1,1,0),(2,2,-1,3)},
+considerando el producto escalar ordinario en  R^4.
+
+Clear["Global`*"]
+
+dimension=4;
+baseoriginal={{-1,2,0,2},{0,3,7,1},{-1,1,1,0},{2,2,-1,3}};
+<<LinearAlgebra`Orthogonalization`
+v=GramSchmidt[baseoriginal,InnerProduct->(#1. #2 &)];
+Print["La base ortogonal obtenida a partir de la base dada, usando el proceso \
+de ortogonalización de Gram-Schmidt es  "]
+For[i=1,i<=dimension,i++,Print["v",i," = ",v[[i]]]]

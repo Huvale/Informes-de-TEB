@@ -1,0 +1,144 @@
+Práctica 7
+Interpolación polinomial a trozos (I)
+
+
+Cálculo del spline cúbico natural
+
+EJERCICIO  1 
+
+Hállese el spline cúbico natural que interpola a una función f, 
+de la que conocemos los datos    f(0)=1,  f(1)=1,   f(2)=0    y    f(3)=10.
+
+Clear["Global`*"]
+t={0,1,2,3};
+f={1,1,0,10};
+n=Dimensions[t][[1]];
+datos=Table[{t[[i]],f[[i]]},{i,n}];
+h=Table[t[[i+1]]-t[[i]],{i,n-1}];
+A=Table[0,{i,n},{j,n}];
+b=Table[0,{i,n}];
+A[[1,1]]=2; A[[1,2]]=1;
+For[i=2,i<=n-1,i++,A[[i,i-1]]=1/h[[i-1]];A[[i,i]]=2 (1/h[[i-1]]+1/h[[i]]); 
+  A[[i,i+1]]=1/h[[i]]];
+A[[n,n-1]]=1; A[[n,n]]=2;
+b[[1]]=3 (f[[2]]-f[[1]])/h[[1]];
+For[i=2,i<=n-1,i++,
+  b[[i]]=3 ((f[[i]]-f[[i-1]])/h[[i-1]]^2+(f[[i+1]]-f[[i]])/h[[i]]^2)];
+b[[n]]=3 (f[[n]]-f[[n-1]])/h[[n-1]];
+MatrixForm[A]
+b
+d=LinearSolve[A,b]
+splinecubiconatural=
+  Table[Expand[
+      InterpolatingPolynomial[{{t[[i]],{f[[i]],d[[i]]}},{
+            t[[i+1]],{f[[i+1]],d[[i+1]]}}},x]],{i,n-1}]
+Print["El spline cúbico natural que interpola a la función  f , que en los \
+nodos  ", t, "   toma los valores  ", f ,",  viene dado por"]
+For[i=1,i<=n-1,i++,
+  Print["s",i,"(x) = ",splinecubiconatural[[i]],"         para  x  en  [",
+    t[[i]],", ",t[[i+1]],"]"]]
+graficasplinecubiconatural=
+  Table[Plot[splinecubiconatural[[i]],{x,t[[i]],t[[i+1]]},PlotRange->All,
+      PlotStyle->RGBColor[0,0,1],DisplayFunction->Identity],{i,n-1}];
+puntos=ListPlot[Table[{t[[i]],f[[i]]},{i,n}],PlotStyle->{PointSize[0.03]},
+    DisplayFunction->Identity];
+polLagrange=InterpolatingPolynomial[datos,x];
+graficapolLagrange=
+  Plot[polLagrange,{x,t[[1]],t[[n]]},PlotStyle->RGBColor[1,0,0],
+    DisplayFunction->Identity]; 
+Show[graficasplinecubiconatural,puntos,DisplayFunction->$DisplayFunction];
+Show[graficasplinecubiconatural,puntos,graficapolLagrange,
+  DisplayFunction->$DisplayFunction];
+
+
+EJERCICIO  2
+
+Hállese el spline cúbico natural que interpola a una función f, 
+de la que conocemos los datos    f(-1)=5,    f(0.5)=3,     f(1)=-2 ,    
+f(2)=0,     f(2.5)=4      y     f(3)=6.
+
+Clear["Global`*"]
+t={-1,0.5,1,2,2.5,3};
+f={5,3,-2,0,4,6};
+n=Dimensions[t][[1]];
+datos=Table[{t[[i]],f[[i]]},{i,n}];
+h=Table[t[[i+1]]-t[[i]],{i,n-1}];
+A=Table[0,{i,n},{j,n}];
+b=Table[0,{i,n}];
+A[[1,1]]=2; A[[1,2]]=1;
+For[i=2,i<=n-1,i++,A[[i,i-1]]=1/h[[i-1]];A[[i,i]]=2 (1/h[[i-1]]+1/h[[i]]); 
+  A[[i,i+1]]=1/h[[i]]];
+A[[n,n-1]]=1; A[[n,n]]=2;
+b[[1]]=3 (f[[2]]-f[[1]])/h[[1]];
+For[i=2,i<=n-1,i++,
+  b[[i]]=3 ((f[[i]]-f[[i-1]])/h[[i-1]]^2+(f[[i+1]]-f[[i]])/h[[i]]^2)];
+b[[n]]=3 (f[[n]]-f[[n-1]])/h[[n-1]];
+MatrixForm[A]
+b
+d=LinearSolve[A,b]
+splinecubiconatural=
+  Table[Expand[
+      InterpolatingPolynomial[{{t[[i]],{f[[i]],d[[i]]}},{
+            t[[i+1]],{f[[i+1]],d[[i+1]]}}},x]],{i,n-1}]
+Print["El spline cúbico natural que interpola a la función  f , que en los \
+nodos  ", t, "   toma los valores  ", f ,",  viene dado por"]
+For[i=1,i<=n-1,i++,
+  Print["s",i,"(x) = ",splinecubiconatural[[i]],"         para  x  en  [",
+    t[[i]],", ",t[[i+1]],"]"]]
+graficasplinecubiconatural=
+  Table[Plot[splinecubiconatural[[i]],{x,t[[i]],t[[i+1]]},PlotRange->All,
+      PlotStyle->RGBColor[0,0,1],DisplayFunction->Identity],{i,n-1}];
+puntos=ListPlot[Table[{t[[i]],f[[i]]},{i,n}],PlotStyle->{PointSize[0.03]},
+    DisplayFunction->Identity];
+polLagrange=InterpolatingPolynomial[datos,x];
+graficapolLagrange=
+  Plot[polLagrange,{x,t[[1]],t[[n]]},PlotStyle->RGBColor[1,0,0],
+    DisplayFunction->Identity]; 
+Show[graficasplinecubiconatural,puntos,DisplayFunction->$DisplayFunction];
+Show[graficasplinecubiconatural,puntos,graficapolLagrange,
+  DisplayFunction->$DisplayFunction];
+
+
+
+Interpolación spline cúbica con Mathematica
+
+Con Mathematica podemos calcular las funciones splines que interpolan una 
+  función desconocida en unos datos que conozcamos sobre ella, 
+haciendo uso de un paquete específico para la interpolación spline. Este 
+  paquete se carga haciendo:
+
+<<NumericalMath`SplineFit`
+
+EJERCICIO  1
+
+Hállese el spline cúbico que interpola a una función f, 
+de la que conocemos los datos    f(0)=1,  f(1)=1,   
+f(2)=0    y    f(3)=10.     
+Con la orden SplineFit[datos,tipo]  se obtiene una curva parametrizada, 
+no una función real.  Por eso, para dibujarla usamos ParametricPlot, 
+en lugar de Plot.
+
+Clear["Global`*"]
+t={0,1,2,3};
+f={1,1,0,10};
+n=Dimensions[t][[1]];
+datos=Table[{t[[i]],f[[i]]},{i,n}];
+splinecubiconatural=SplineFit[datos,Cubic]
+graficasplinecubiconatural=
+  ParametricPlot[splinecubiconatural[x],{x,0,3},PlotStyle->RGBColor[0,1,0],
+    PlotRange->All,Compiled->False];
+
+EJERCICIO  2
+
+Con la orden SplineFit[datos,tipo]  se obtiene una curva parametrizada.Por 
+  eso, podemos tener cualesquiera puntos del plano como datos de 
+  interpolación. 
+Así, por ejemplo si tenemos los datos   (1,0),  (0,1), (-1,0)  y   (0,-1), 
+podemos calcular el spline cúbico que interpola estos datos.
+
+Clear["Global`*"]
+datos={{1,0},{0,1},{-1,0},{0,-1}};
+splinecubiconatural=SplineFit[datos,Cubic]
+graficasplinecubiconatural=
+  ParametricPlot[splinecubiconatural[x],{x,0,3},PlotStyle->RGBColor[0,1,0],
+    PlotRange->All, Compiled->False];
