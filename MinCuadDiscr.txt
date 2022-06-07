@@ -1,0 +1,22 @@
+2. Determínese la mejor aproximación por mínimos cuadrados discreta 
+de la función f(x)=5x^3-3x^2-2, en -1, -1/2, 0, 1/2, 1, en el subespacio
+vectorial de C([-1,1]) dado por:
+H={a + b sen(Pi x/2) + c cos (Pi x/2)}
+
+
+Clear["Global`*"]
+
+x1={-1.,-1/2,0,1/2,1};
+m=Dimensions[x1][[1]];
+f=5x^3-3x^2-2;
+v={1,Sin[Pi x/2],Cos[Pi x/2]};
+n=Dimensions[v][[1]];
+y1=f/.x->x1;
+v1=Table[1,{i,n},{j,m}];
+For[i=2,i<=n,i++,v1[[i]]=v[[i]]/.x->x1];
+
+A=Table[v1[[i]].v1[[j]],{i,n},{j,n}];
+b=Table[y1.v1[[j]],{j,n}];
+
+coeficientes=LinearSolve[A,b];
+u=coeficientes.v
