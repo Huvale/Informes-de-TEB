@@ -1,0 +1,10 @@
+Clear["Global`*"]
+a=0.;
+b=0.5;
+f=x^3-x;
+v={Sin[Pi x], Cos[Pi x]};
+A=Table[Integrate[v[[i]]*v[[j]],{x,a,b}],{i,2},{j,2}];
+b1=Table[Integrate[f*v[[j]],{x,a,b}],{j,2}];
+coeficientes=LinearSolve[A,b1];
+p=coeficientes.v;
+Print["p(x)=", p]
