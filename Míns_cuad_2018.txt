@@ -1,0 +1,13 @@
+Clear["Global`*"]
+a=-1.;
+b=1.;
+f=2x^3-x^2+3;
+v={1,Sin[Pi x/2], Cos[Pi x/2]};
+n=Dimensions[v][[1]];
+A=Table[Integrate[v[[i]]*v[[j]],{x,a,b}],{i,n},{j,n}];
+b1=Table[Integrate[f*v[[j]],{x,a,b}],{j,n}];
+coeficientes=LinearSolve[A,b1];
+p=coeficientes.v;
+Print["p(x)=", p]
+
+Plot[{f,p},{x,a,b},PlotStyle->{RGBColor[1,0,0],RGBColor[0,0,1]}];
