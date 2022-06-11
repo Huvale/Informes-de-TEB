@@ -1,0 +1,120 @@
+MÉTODOS NUMÉRICOS I
+1º Grado en Matemáticas. Grupo A
+1º Doble Grado en Física y Matemáticas
+
+Práctica 6
+Interpolación polinomial. Fórmula de Newton. 
+Error de interpolación. Comportamiento asintótico. 
+
+
+1. Interpolación polinomial. Fórmula de Newton 
+
+EJERCICIO  1 
+Clear["Global`*"]
+f[x_]:=7x^5-x^4-x^3-2x+1
+x={-2,-3/2, -1/3, 0,5/2, 3};
+n=Dimensions[x][[1]];
+y=Table[f[x[[i]]],{i,n}];
+datos=Table[{x[[i]],y[[i]]},{i,n}];
+A=Table[y,{i,n}];
+A=Transpose[A];
+For[i=2,i<=n,i++,
+  For[j=i,j<=n,j++, A[[j,i]]=(A[[j-1,i-1]]-A[[j,i-1]])/(x[[j-i+1]]-x[[j]])]]
+polNewton[t_]:=Sum[A[[i,i]] Product[t-x[[j]],{j,i-1}],{i,n}]
+Print["La fórmula de Newton del polinomio de interpolación para el problema \
+de interpolación polinomial clásica en los datos   ", datos, "  es  p(t) = ", 
+  polNewton[t]]
+For[i=2,i<=n,i++,For[j=1,j<=i-1,j++, A[[j,i]]=0]]
+Print["La tabla de diferencias divididas de la función   f(t) =  ", f[t], 
+  "   en los puntos  ", x,  "  es   ",MatrixForm[A]]
+difdivididas=Table[A[[i,i]],{i,n}]
+Print["Las diferencias divididas para la fórmula de Newton son ", 
+  difdivididas]
+Print["El polinomio de interpolación para el problema de interpolación \
+polinomial clásica en los datos   ", datos, "  es  p(t) = ", 
+  Expand[polNewton[t],t]]
+Plot[polNewton[t],{t,x[[1]],x[[n]]}]
+
+
+EJERCICIO  2
+Clear["Global`*"]
+f[x_]:=(Sin[x]-Cos[x])/2
+x={-Pi,-Pi/2, 0,Pi/2, Pi};
+n=Dimensions[x][[1]];
+y=Table[f[x[[i]]],{i,n}];
+datos=Table[{x[[i]],y[[i]]},{i,n}];
+A=Table[y,{i,n}];
+A=Transpose[A];
+For[i=2,i<=n,i++,
+  For[j=i,j<=n,j++, A[[j,i]]=(A[[j-1,i-1]]-A[[j,i-1]])/(x[[j-i+1]]-x[[j]])]]
+polNewton[t_]:=Sum[A[[i,i]] Product[t-x[[j]],{j,i-1}],{i,n}]
+Print["La fórmula de Newton del polinomio de interpolación para el problema \
+de interpolación polinomial clásica en los datos   ", datos, "  es  p(t) = ", 
+  polNewton[t]]
+For[i=2,i<=n,i++,For[j=1,j<=i-1,j++, A[[j,i]]=0]]
+Print["La tabla de diferencias divididas de la función   f(t) =  ", f[t], 
+  "   en los puntos  ", x,  "  es   ",MatrixForm[A]]
+difdivididas=Table[A[[i,i]],{i,n}]
+Print["Las diferencias divididas para la fórmula de Newton son ", 
+  difdivididas]
+Print["El polinomio de interpolación para el problema de interpolación \
+polinomial clásica en los datos   ", datos, "  es  p(t) = ", 
+  Expand[polNewton[t],t]]
+Plot[{f[t],polNewton[t]},{t,x[[1]],x[[n]]}, 
+  PlotStyle->{RGBColor[1,0,0],RGBColor[0,1,0]}]
+
+
+EJERCICIO  3
+Clear["Global`*"]
+f[x_]:=Cos[x]
+x={-Pi, 0,Pi};
+n=Dimensions[x][[1]];
+y=Table[f[x[[i]]],{i,n}];
+y'=Table[f'[x[[i]]],{i,n}];
+y''=Table[f''[x[[i]]],{i,n}];
+datos=Table[{x[[i]],{y[[i]],y'[[i]],y''[[i]]}},{i,n}];
+
+p=Expand[InterpolatingPolynomial[datos,t]]
+Print["El polinomio de interpolación para el problema de interpolación de \
+Hermite en los datos  ", datos,"  es  p(t) = ", p]
+Plot[{f[t],p},{t,x[[1]],x[[n]]}, PlotStyle->{RGBColor[1,0,0],RGBColor[0,0,1]}]
+Plot[p,{t,x[[1]],x[[n]]}, PlotStyle->RGBColor[0,0,1]]
+
+Plot[f[t],{t,x[[1]],x[[n]]}, PlotStyle->RGBColor[1,0,0]]
+
+2. Error de interpolación. Comportamiento asintótico.
+
+EJERCICIO  4
+
+Consideramos la función  f(x)=
+  1/(x^2+1)   en el intervalo [-5,5]. Para  cada  n   ( n=10, 20,...,70),  
+vamos a hallar el  polinomio de interpolación, mediante la fórmula de Newton,
+de la función  f  en  los   n+1  puntos del intervalo  [-5,5], 
+resultantes de hacer una partición uniforme del mismo en  n  
+  subintervalos.  Es decir, en los puntos  x(i)=-5+i*h,    i=0,1,..., n,  
+siendo  h=10/n. Concretamente, 
+hallaremos los valores de dichos polinomios de interpolación en  x = 4,  
+y estudiaremos el error de interpolación cuando  n  crece  de 10 a 70.
+
+Clear["Global`*"]
+f[x_]:=1/(x^2+1)
+For[n=10, n<=100, n=n+10,h=10/n; x=Table[-5.+i*h,{i,0,n}]; y=f[x]; 
+  A=Table[y,{i,n+1}]; A=Transpose[A]; 
+  For[i=2,i<=n+1,i++,
+    For[j=i,j<=n+1,j++, 
+      A[[j,i]]=(A[[j-1,i-1]]-A[[j,i-1]])/(x[[j-i+1]]-x[[j]])]]; 
+  error=f[4]-Sum[A[[i,i]] Product[4-x[[j]],{j,i-1}],{i,n+1}]; 
+  Print["El error que se comete con  ", n+1,"   puntos en  x = 4   es  ",  
+    error ]]
+
+
+
+n=10;h=10/n; x=Table[-5.+i*h,{i,0,n}]; y=f[x]; A=Table[y,{i,n+1}]; 
+A=Transpose[A];
+For[i=2,i<=n+1,i++,
+  For[j=i,j<=n+1,j++, 
+    A[[j,i]]=(A[[j-1,i-1]]-A[[j,i-1]])/(x[[j-i+1]]-x[[j]])]]
+polNewton[t_]:=Sum[A[[i,i]] Product[t-x[[j]],{j,i-1}],{i,n+1}]
+
+Plot[{f[t],polNewton[t]},{t,-5,5}, 
+  PlotStyle->{RGBColor[1,0,0],RGBColor[0,1,0]}]

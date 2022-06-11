@@ -1,0 +1,263 @@
+MÉTODOS NUMÉRICOS I
+1º Grado en Matemáticas. Grupo A
+1º Doble Grado en Física y Matemáticas
+
+Práctica 4
+Métodos iterativos para sistemas lineales
+
+
+1. Método de Jacobi
+
+Clear["Global`*"]
+Ejemplo 1 
+A={{1/2,-1/2,0,1/3},{1/4,1,-1,0},{1,1/2,-1,1/3},{1/4,1,0,1}};
+b={4,0,1,0};
+
+Ejemplo 2
+A={{1,-1/2,0,1/3},{1,1,-1,0},{1,1/2,-1,1/3},{1,1,0,1}};
+b={4,0,1,0};
+
+Ejemplo 3
+A={{2,-1,1},{1,3,-1},{0,2,-1}};
+b={1,0,-2};
+
+LinearSolve[A,b]
+MatrixForm[A]
+If[Det[A]!=0,
+  Print["El sistema es compatible y determinado, con una única solución"], 
+  Print["El sistema no tiene solución única"]]
+Det[A]
+
+CÁLCULO DE LAS MATRICES   D,  L   y    U.
+n=Dimensions[A][[1]];
+D1=Table[0,{i,n},{j,n}];
+L=Table[0,{i,n},{j,n}];
+U=Table[0,{i,n},{j,n}];
+For[i=1,i<=n,i++,D1[[i,i]]=A[[i,i]]];
+For[i=2,i<=n,i++,For[j=1,j<=i-1,j++,L[[i,j]]=-A[[i,j]]]];
+For[i=1,i<=n-1,i++,For[j=i+1,j<=n,j++,U[[i,j]]=-A[[i,j]]]];
+MatrixForm[A]
+MatrixForm[D1]
+MatrixForm[L]
+MatrixForm[U]
+A==D1-L-U
+
+CONVERGENCIA DEL MÉTODO DE JACOBI
+BJacobi=Inverse[D1].(L+U);
+Radioespectral=Max[Abs[N[Eigenvalues[BJacobi]]]];
+If[Radioespectral<1, 
+  Print["El radio espectral de la matriz B en el método de Jacobi es igual a  \
+",Radioespectral,  
+    "< 1,  y por lo tanto el método de Jacobi es convergente"],
+	Print["El radio espectral de la matriz B en el método de Jacobi es igual a  \
+",Radioespectral , 
+    " > 1, y por lo tanto el método de Jacobi no es convergente"]]
+
+CÁLCULO DE LAS APROXIMACIONES A LA SOLUCIÓN DEL SISTEMA
+n=Dimensions[A][[1]];
+iteraciones=3;
+aproxinicial=Table[0.,{i,n}];
+x=Table[0.,{m,0,iteraciones},{i,n}];
+x[[0]]=aproxinicial;
+For[m=0, m<=iteraciones-1, m++,
+	For[i=1,i<=n,i++,
+		x[[m+1,i]]=(
+          b[[i]]-Sum[A[[i,j]] x[[m,j]],{j,i-1}]-
+            Sum[A[[i,j]] x[[m,j]],{j,i+1,n}])/A[[i,i]]]; 
+  Print["La iteración  ", m , "  es  ",x[[m]]]];
+Print["Después de hacer  ", iteraciones, 
+  "  iteraciones con el método de Jacobi se obtiene la solución aproximada \
+del sistema  ",  N[x[[iteraciones]],10]]
+
+N[LinearSolve[A,b],10]
+
+CÁLCULO DE LAS APROXIMACIONES A LA SOLUCIÓN DEL SISTEMA CON CRITERIO DE PARADA
+n=Dimensions[A][[1]];
+diferencia=10^-4;
+iteraciones=42;
+aproxinicial=Table[0.,{i,n}];
+x=Table[0.,{m,0,iteraciones},{i,n}];
+x[[0]]=aproxinicial;
+For[m=0, m<=iteraciones-1, m++,
+	For[i=1,i<=n,i++,
+		x[[m+1,i]]=(
+          b[[i]]-Sum[A[[i,j]] x[[m,j]],{j,i-1}]-
+            Sum[A[[i,j]] x[[m,j]],{j,i+1,n}])/A[[i,i]]]; 
+  Print["La iteración  ", m , "  es  ",x[[m]]]; 
+  If[Sqrt[Sum[(x[[m+1,i]]-x[[m,i]])^2,{i,n}]]<=diferencia,
+    Print["En la iteración  ", m+1, "  que es  ", x[[m+1]],
+      "  se ha conseguido con el método de Jacobi la exactitud deseada"]; 
+    Break[ ]]];
+If[m==iteraciones,
+  Print["Después de hacer  ", iteraciones, 
+    "  iteraciones con el método de Jacobi se obtiene la solución aproximada \
+del sistema  ",  N[x[[iteraciones]],10], 
+    "  y no se ha conseguido la exactitud deseada"]]
+
+
+
+2. Método de Gauss-Seidel
+
+Clear["Global`*"]
+Ejemplo 1 
+A={{1/2,-1/2,0,1/3},{1/4,1,-1,0},{1,1/2,-1,1/3},{1/4,1,0,1}};
+b={4,0,1,0};
+
+Ejemplo 2
+A={{1,-1/2,0,1/3},{1,1,-1,0},{1,1/2,-1,1/3},{1,1,0,1}};
+b={4,0,1,0};
+
+Ejemplo 3
+A={{2,-1,1},{1,3,-1},{0,2,-1}};
+b={1,0,-2};
+
+CÁLCULO DE LAS MATRICES   D,  L   y    U.
+n=Dimensions[A][[1]];
+D1=Table[0,{i,n},{j,n}];
+L=Table[0,{i,n},{j,n}];
+U=Table[0,{i,n},{j,n}];
+For[i=1,i<=n,i++,D1[[i,i]]=A[[i,i]]];
+For[i=2,i<=n,i++,For[j=1,j<=i-1,j++,L[[i,j]]=-A[[i,j]]]];
+For[i=1,i<=n-1,i++,For[j=i+1,j<=n,j++,U[[i,j]]=-A[[i,j]]]];
+MatrixForm[A]
+MatrixForm[D1]
+MatrixForm[L]
+MatrixForm[U]
+A==D1-L-U
+
+CONVERGENCIA DEL MÉTODO DE GAUSS-SEIDEL
+BGaussSeidel=Inverse[D1-L].U;
+Radioespectral=Max[Abs[N[Eigenvalues[BGaussSeidel]]]];
+If[Radioespectral<1, 
+  Print["El radio espectral de la matriz B en el método de Gauss-Seidel es \
+igual a  ",Radioespectral,  
+    "< 1,  y por lo tanto el método de Gauss-Seidel es convergente"],
+	Print["El radio espectral de la matriz B en el método de Gauss-Seidel es \
+igual a  ",Radioespectral , 
+    " > 1, y por lo tanto el método de Gauss-Seidel no es convergente"]]
+
+CÁLCULO DE LAS APROXIMACIONES A LA SOLUCIÓN DEL SISTEMA
+n=Dimensions[A][[1]];
+iteraciones=3;
+aproxinicial=Table[0.,{i,n}];
+x=Table[0.,{m,0,iteraciones},{i,n}];
+x[[0]]=aproxinicial;
+For[m=0, m<=iteraciones-1, m++,
+	For[i=1,i<=n,i++,
+		x[[m+1,i]]=(
+          b[[i]]-Sum[A[[i,j]] x[[m+1,j]],{j,i-1}]-
+            Sum[A[[i,j]] x[[m,j]],{j,i+1,n}])/A[[i,i]]]; 
+  Print["La iteración  ", m , "  es  ",x[[m]]]];
+Print["Después de hacer  ", iteraciones, 
+  "  iteraciones con el método de Gauss-Seidel se obtiene la solución \
+aproximada del sistema  ",  N[x[[iteraciones]],10]]
+
+CÁLCULO DE LAS APROXIMACIONES A LA SOLUCIÓN DEL SISTEMA CON CRITERIO DE PARADA
+n=Dimensions[A][[1]];
+diferencia=10^-4;
+iteraciones=40;
+aproxinicial=Table[0.,{i,n}];
+x=Table[0.,{m,0,iteraciones},{i,n}];
+x[[0]]=aproxinicial;
+For[m=0, m<=iteraciones-1, m++,
+	For[i=1,i<=n,i++,
+		x[[m+1,i]]=(
+          b[[i]]-Sum[A[[i,j]] x[[m+1,j]],{j,i-1}]-
+            Sum[A[[i,j]] x[[m,j]],{j,i+1,n}])/A[[i,i]]];
+	Print["La iteración  ", m , "  es  ",x[[m]]]; 
+  If[Sqrt[Sum[(x[[m+1,i]]-x[[m,i]])^2,{i,n}]]<=diferencia,
+    Print["En la iteración  ", m+1, "  que es  ", x[[m+1]],
+      "  se ha conseguido con el método de Gauss-Seidel la exactitud \
+deseada"]; Break[ ]]];
+If[m==iteraciones,
+  Print["Después de hacer  ", iteraciones, 
+    "  iteraciones con el método de Gauss-Seidel se obtiene la solución \
+aproximada del sistema  ",  N[x[[iteraciones]],10], 
+    "  y no se ha conseguido la exactitud deseada"]]
+N[LinearSolve[A,b],12]
+
+3.Métodos de relajación
+
+Clear["Global`*"]
+Ejemplo 1 
+A={{1/2,-1/2,0,1/3},{1/4,1,-1,0},{1,1/2,-1,1/3},{1/4,1,0,1}};
+b={4,0,1,0};
+
+Ejemplo 2
+A={{1,-1/2,0,1/3},{1,1,-1,0},{1,1/2,-1,1/3},{1,1,0,1}};
+b={4,0,1,0};
+
+Ejemplo 3
+A={{2,-1,1},{1,3,-1},{0,2,-1}};
+b={1,0,-2};
+
+LinearSolve[A,b]
+
+CÁLCULO DE LAS MATRICES   D,  L   y    U.
+n=Dimensions[A][[1]];
+D1=Table[0,{i,n},{j,n}];
+L=Table[0,{i,n},{j,n}];
+U=Table[0,{i,n},{j,n}];
+For[i=1,i<=n,i++,D1[[i,i]]=A[[i,i]]];
+For[i=2,i<=n,i++,For[j=1,j<=i-1,j++,L[[i,j]]=-A[[i,j]]]];
+For[i=1,i<=n-1,i++,For[j=i+1,j<=n,j++,U[[i,j]]=-A[[i,j]]]];
+MatrixForm[A]
+MatrixForm[D1]
+MatrixForm[L]
+MatrixForm[U]
+A==D1-L-U
+
+CONVERGENCIA DEL MÉTODO DE RELAJACIÓN
+w=0.7;
+BRelajacion=Inverse[(1/w) D1-L].(((1-w)/w) D1+U);
+Radioespectral=Max[Abs[N[Eigenvalues[BRelajacion]]]];
+If[Radioespectral<1, 
+  Print["El radio espectral de la matriz B en el método de relajación de \
+parámetro  ", w,"  es igual a  ",Radioespectral,  
+    "< 1,  y por lo tanto el método de relajación de parámetro  ", w, 
+    "  es convergente"],
+	Print["El radio espectral de la matriz B en el método de relajación de \
+parámetro  ", w,"  es igual a  ",Radioespectral , 
+    " > 1, y por lo tanto el método de relajación de parámetro  ", w,
+    "  no es convergente"]]
+
+CÁLCULO DE LAS APROXIMACIONES A LA SOLUCIÓN DEL SISTEMA
+n=Dimensions[A][[1]];
+iteraciones=3;
+aproxinicial=Table[0.,{i,n}];
+x=Table[0.,{m,0,iteraciones},{i,n}];
+x[[0]]=aproxinicial;
+For[m=0, m<=iteraciones-1, m++,
+	For[i=1,i<=n,i++,
+		x[[m+1,i]]=
+      w (b[[i]]-Sum[A[[i,j]] x[[m+1,j]],{j,i-1}]+((1-w)/w)A[[i,i]] x[[m,i]]-
+              Sum[A[[i,j]] x[[m,j]],{j,i+1,n}])/A[[i,i]]]; 
+  Print["La iteración  ", m , "  es  ",x[[m]]]];
+Print["Después de hacer  ", iteraciones, 
+  "  iteraciones con el método de relajación de parámetro  ", w, 
+  "  se obtiene la solución aproximada del sistema  ",  
+  N[x[[iteraciones]],10]]
+
+CÁLCULO DE LAS APROXIMACIONES A LA SOLUCIÓN DEL SISTEMA CON CRITERIO DE PARADA
+n=Dimensions[A][[1]];
+diferencia=10^-4;
+iteraciones=40;
+aproxinicial=Table[0.,{i,n}];
+x=Table[0.,{m,0,iteraciones},{i,n}];
+x[[0]]=aproxinicial;
+For[m=0, m<=iteraciones-1, m++,
+	For[i=1,i<=n,i++,
+		x[[m+1,i]]=
+      w (b[[i]]-Sum[A[[i,j]] x[[m+1,j]],{j,i-1}]+((1-w)/w)A[[i,i]] x[[m,i]]-
+              Sum[A[[i,j]] x[[m,j]],{j,i+1,n}])/A[[i,i]]];
+	Print["La iteración  ", m , "  es  ",x[[m]]]; 
+  If[Sqrt[Sum[(x[[m+1,i]]-x[[m,i]])^2,{i,n}]]<=diferencia,
+    Print["En la iteración  ", m+1, "  que es  ", x[[m+1]],
+      "  se ha conseguido con el método de relajación de parámetro  ", w, 
+      "  la exactitud deseada"]; Break[ ]]];
+If[m==iteraciones,
+  Print["Después de hacer  ", iteraciones, 
+    "  iteraciones con el método de relajación de parámetro  ", w, 
+    "  se obtiene la solución aproximada del sistema  ",  
+    N[x[[iteraciones]],10], "  y no se ha conseguido la exactitud deseada"]]
+N[LinearSolve[A,b],12]

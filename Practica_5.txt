@@ -1,0 +1,81 @@
+MÉTODOS NUMÉRICOS I
+1º Grado en Matemáticas. Grupo A
+1º Doble Grado en Física y Matemáticas
+
+Práctica 5 
+
+
+
+Problema 1
+
+Clear["Global`*"]
+x=1;
+epsilon=10^-7;
+s=1;
+For[i=1, x^i/i!>=epsilon, i++,s=s+x^i/i!]
+Print["La aproximación de  Exp(",x,") con un error menor que  ",epsilon,
+  "  es  ",N[s,12]]
+
+Clear["Global`*"]
+x=1;
+epsilon=10^-7;
+s=1;
+For[i=1, i<=1000, i++,If[x^i/i!>=epsilon, s=s+x^i/i!, Break[]]]
+Print["La aproximación de Exp(",x,") con un error menor que  ",epsilon,
+  "  es  ",N[s,12]]
+
+Problema 2
+
+Clear["Global`*"]
+x=Table[0.,{i,1000}];
+x[[0]]=3;
+epsilon=10^-5;
+For[n=0, n<=1000, n++,x[[n+1]]=4(x[[n]]+8/x[[n]]^4)/5;
+	If[Abs[x[[n+1]]-x[[n]]]<epsilon,Break[]]]
+Print["La aproximación de la raiz quinta de 32  con un error menor que  ", 
+  epsilon,
+	"   es x(",n+1,") = ", N[x[[n+1]],20]]
+
+Clear["Global`*"]
+x=3;
+epsilon=10^-5;
+For[n=0,Abs[4*(x+8/x^4)/5-x]>=epsilon , n++,x=4*(x+8/x^4)/5]
+Print["La aproximación de la raiz quinta de 32  con un error menor que  ", 
+  epsilon,
+	"   es x(",n+1,") = ", N[4*(x+8/x^4)/5,20]]
+
+Problema 3
+
+Clear["Global`*"]
+A={{3,-1,1},{1,1,-1},{1,-2,1}};
+b={12,0,7};
+LinearSolve[A,b]
+{3,-1,2}
+n=Dimensions[A][[1]];
+L=IdentityMatrix[n];
+U=Table[0,{i,n},{j,n}];
+For[j=1, j<=n, j++,
+	U[[1,j]]=A[[1,j]]];
+For[i=2, i<=n, i++,
+	L[[i,1]]=A[[i,1]]/U[[1,1]]];
+For[k=2, k<=n-1, k++,
+	U[[k,k]]=A[[k,k]]-Sum[L[[k,s]] U[[s,k]], {s, k-1}];
+	For[j=k+1, j<=n, j++,
+		U[[k,j]]=A[[k,j]]-Sum[L[[k,s]] U[[s,j]], {s, k-1}]];
+	For[i=k+1, i<=n, i++,
+		L[[i,k]]=(A[[i,k]]-Sum[L[[i,s]] U[[s,k]], {s, k-1}])/U[[k,k]]]];
+U[[n,n]]=A[[n,n]]-Sum[L[[n,s]] U[[s,n]], {s, n-1}];
+MatrixForm[L]
+MatrixForm[U]
+
+y=Table[0,{i,n}];
+y[[1]]=b[[1]]/L[[1,1]];
+For[i=2, i<=n, i++,
+	y[[i]]=(b[[i]]-Sum[L[[i,k]] y[[k]], {k, i-1}])/L[[i,i]]];
+x=Table[0,{i,n}];
+x[[n]]=y[[n]]/U[[n,n]];
+For[i=n-1, i>=1, i--,
+	x[[i]]=(y[[i]]-Sum[U[[i,k]] x[[k]], {k,i+1,n}])/U[[i,i]]];
+Print["La solución del sistema lineal, usando el método de Doolittle, 
+		es    x1 = ",x[[1]], ",    x2 = ", x[[2]],  ",   x3 = ",x[[3]]]   
+"La solución del sistema lineal, usando el método de Doolittle,   es    x1 = ",x[[1]], ",    x2 = ", x[[2]],  ",   x3 = ",x[[3]]]

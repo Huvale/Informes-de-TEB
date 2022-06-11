@@ -1,0 +1,88 @@
+MÉTODOS NUMÉRICOS I
+1º Grado en Matemáticas. Grupo A
+1º Doble Grado en Física y Matemáticas
+
+Práctica 2
+Matrices y funciones
+
+1. Definición de matrices
+a={{0,1,2},{-1,7,3},{2,6,-9}};
+b={3,5,2};
+Con Mathematica podemos definir una matriz a partir de su término 
+  general. Por ejemplo, 
+si la matriz  c  de orden  5x3  tiene por término general  cij=(3i-j)(i+j), 
+entonces hacemos uso de la sentencia  Table:
+c=Table[(3i-j) (i+j), {i,5},{j,3}]
+MatrixForm[c]
+MatrixForm[b]
+Dimensions[c]
+Dimensions[b]
+c[[2,3]]
+c[[4]]
+
+2. Operaciones con matrices
+d={{3,5,7},{-2,0,4},{9,-1,2}};
+MatrixForm[a+d]
+MatrixForm[3 d]
+MatrixForm[a.d]
+MatrixForm[a.b]
+MatrixForm[b.a]
+
+3. Matriz transpuesta y matriz inversa. Determinantes.
+Transpose[a]
+MatrixForm[Transpose[a]]
+MatrixForm[Inverse[a]]
+%//N
+N[MatrixForm[Inverse[a]],10]
+Det[a]
+Det[Inverse[a]]
+
+4.Funciones.
+Con Mathematica definimos funciones de una o varias variables de la siguiente 
+    forma:    función[x_,y_,...]:=expresión  .   Por ejemplo:
+f[x_]:=3x^2-2x+Cos[x]
+g[x_,y_]:=5x^2y-3y^2+Exp[x]
+f[x]
+g[x,y]
+f[Pi]
+%//N
+g[1,1]
+%//N
+Con Mathematica también podemos definir las funciones vectoriales de una o 
+    varias variables de la siguiente 
+    forma:    función[x_,y_,...]:={expresión1,expresión2,...}  .   Por 
+    ejemplo:
+h[x_,y_,z_,t_]:={3x y-t,x Tan[y^2],z^3-2x^2}
+h[x,y,z,t]
+h[2,0,1,1]
+Las funciones componentes de la función vectorial h se obtendrían haciendo:
+h[x,y,z,t][[1]]
+Para calcular la derivada de orden n de la función f(x) hacemos  
+  D[f[x],{x,n}]. La derivada primera se puede hacer de la forma  D[f[x],x], 
+o también haciendo  f'[x], y las sucesivas derivadas haciendo   f''[x], 
+f'''[x],...Por ejemplo:
+f[x_]:=3x^2-2x+Cos[x]
+f'[x]
+f''[x]
+f''[Pi]
+D[f[x],{x,8}]
+f8[x_]=D[f[x],{x,8}];
+f8[x]
+f8[Pi]
+D[f[x],{x,8}]/.x->Pi
+También podemos calcular con Mathematica las derivadas parciales de una 
+  función de varias variables. Así, 
+la derivada parcial de orden n respecto de la variable xi de la función  
+  f(x1,x2,...,xn) se haría mediante  D[f[x1,x2,...,xn],{xi,n}]. Por ejemplo:
+f[x_,y_,z_]:=3 (x^2-5 y^3)+2 z^2
+D[f[x,y,z],{x,2}]
+D[f[x,y,z],{y,2}]
+D[f[x,y,z],{y,2}]/.{x->1,y->3, z->0}
+Para una función vectorial de varias variables podemos calcular la matriz 
+  jacobiana. Por ejemplo:
+g[x_,y_,z_]:={3 x^3-8 y, Sin[x]-Cos[z], z^2-3 x+2 y}
+Mjacob={{D[g[x,y,z][[1]],x],D[g[x,y,z][[1]],y],D[g[x,y,z][[1]],z]},
+		{D[g[x,y,z][[2]],x],D[g[x,y,z][[2]],y],D[g[x,y,z][[2]],z]},
+		{D[g[x,y,z][[3]],x],D[g[x,y,z][[3]],y],D[g[x,y,z][[3]],z]}};
+MatrixForm[Mjacob]
+MatrixForm[Mjacob/.{x->Pi,y->4,z->0}]
